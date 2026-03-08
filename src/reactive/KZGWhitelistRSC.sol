@@ -17,12 +17,7 @@ interface IReactive {
         bytes32 transactionHash;
     }
 
-    event Callback(
-        uint256 indexed chainId,
-        address indexed target,
-        uint256 gasLimit,
-        bytes payload
-    );
+    event Callback(uint256 indexed chainId, address indexed target, uint256 gasLimit, bytes payload);
 
     function react(LogEntry calldata log) external;
 }
@@ -66,8 +61,9 @@ contract KZGWhitelistRSC is IReactive {
     }
 
     function react(LogEntry calldata log) external override {
-        if (log.chainId != originChainId || log.source != registryAddress)
+        if (log.chainId != originChainId || log.source != registryAddress) {
             return;
+        }
         if (log.topics.length < 2) return;
         if (bytes32(log.topics[0]) != WHITELIST_UPDATED_TOPIC_0) return;
 
@@ -79,12 +75,7 @@ contract KZGWhitelistRSC is IReactive {
             destinationChainId,
             triggerAddress,
             200000, // gasLimit
-            abi.encodeWithSignature(
-                "onCallback(address,bool,uint256)",
-                addr,
-                added,
-                nonce
-            )
+            abi.encodeWithSignature("onCallback(address,bool,uint256)", addr, added, nonce)
         );
     }
 }

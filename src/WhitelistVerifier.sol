@@ -65,10 +65,7 @@ contract WhitelistVerifier is Ownable, IWhitelistVerifier {
      * @param _commitment   48-byte compressed G1 point (BLS12-381).
      * @param _nonce        Must be strictly greater than lastNonce.
      */
-    function updateCommitment(
-        bytes calldata _commitment,
-        uint64 _nonce
-    ) external {
+    function updateCommitment(bytes calldata _commitment, uint64 _nonce) external {
         if (msg.sender != proverEOA) revert UnauthorizedProver();
         if (_nonce <= lastNonce) revert StaleNonce();
 
@@ -92,19 +89,13 @@ contract WhitelistVerifier is Ownable, IWhitelistVerifier {
      *      However, without the pairing check, a malicious user could fabricate
      *      quotientCommitments. See the production TODO above for the full check.
      */
-    function verify(
-        address sender,
-        bytes calldata hookData
-    ) external pure returns (bool) {
+    function verify(address sender, bytes calldata hookData) external pure returns (bool) {
         // Minimum length: 32 (claimedValue) + 20*32 (evalPoint) + 32 (bytes[20] offset)
         if (hookData.length < 32 + 20 * 32 + 32) return false;
 
         // quotientCommitments are decoded here but validated via pairing (production TODO)
-        (
-            uint256 claimedValue,
-            uint256[20] memory evalPoint,
-            bytes[20] memory quotientCommitments
-        ) = abi.decode(hookData, (uint256, uint256[20], bytes[20]));
+        (uint256 claimedValue, uint256[20] memory evalPoint, bytes[20] memory quotientCommitments) =
+            abi.decode(hookData, (uint256, uint256[20], bytes[20]));
         // Suppress unused variable warning until pairing check is implemented
         quotientCommitments;
 
@@ -126,10 +117,7 @@ contract WhitelistVerifier is Ownable, IWhitelistVerifier {
      * @dev    Matches the Rust `address_to_hypercube_bits` function in encoding.rs.
      *         `uint256(hash) >> i` extracts bit i counting from the LSB.
      */
-    function _verifyEvalPoint(
-        address addr,
-        uint256[20] memory evalPoint
-    ) internal pure returns (bool) {
+    function _verifyEvalPoint(address addr, uint256[20] memory evalPoint) internal pure returns (bool) {
         bytes32 hash = keccak256(abi.encodePacked(addr));
         for (uint256 i = 0; i < 20; i++) {
             uint256 bit = (uint256(hash) >> i) & 1;

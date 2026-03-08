@@ -17,12 +17,7 @@ contract DeployReactive is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy the Reactive Smart Contract
-        KZGWhitelistRSC rsc = new KZGWhitelistRSC(
-            originChainId,
-            registryAddr,
-            destChainId,
-            triggerAddr
-        );
+        KZGWhitelistRSC rsc = new KZGWhitelistRSC(originChainId, registryAddr, destChainId, triggerAddr);
 
         console2.log("KZGWhitelistRSC deployed at:", address(rsc));
 
