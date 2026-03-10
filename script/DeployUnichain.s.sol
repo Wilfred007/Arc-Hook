@@ -11,9 +11,9 @@ import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
 
 contract DeployUnichain is Script {
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        uint256 deployerPrivateKey = vm.envUint("UNICHAIN_PRIVATE_KEY");
         address proverEOA = vm.envAddress("PROVER_ADDRESS");
-        address rscProxy = vm.envAddress("REACTIVE_CALLBACK_PROXY"); // Kopernikus proxy
+        address rscProxy = vm.envAddress("REACTIVE_SYSTEM_CONTRACT"); // Lasna/Mainnet proxy
         address poolManager = vm.envAddress("POOL_MANAGER");
 
         vm.startBroadcast(deployerPrivateKey);

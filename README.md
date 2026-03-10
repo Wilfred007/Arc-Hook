@@ -5,6 +5,7 @@
 A trader can prove they are on an institutional whitelist and execute a swap — without their address ever appearing in a public on-chain list. Nobody can front-run them. Nobody can tag their wallet. Compliance is preserved without exposure.
 
 ---
+0x052faB7c34011dA32d117d8354bdEC6b0Ca28d6e
 
 ## Table of Contents
 
@@ -70,6 +71,7 @@ Instead of storing raw addresses in a public mapping, the system:
 4. A whitelisted trader fetches a **KZG opening proof** from an off-chain prover REST API, passes it as `hookData` in their swap transaction, and the Uniswap v4 hook verifies the proof on-chain.
 
 The commit → prove → verify cycle means:
+
 - Observers see a single cryptographic fingerprint (48 bytes), not a list of addresses.
 - Proofs are **address-specific**: a proof for Alice cannot be replayed by Bob.
 - When the whitelist changes, the off-chain prover automatically recomputes and publishes a new commitment.
@@ -80,12 +82,12 @@ The commit → prove → verify cycle means:
 
 Regulated DeFi pools need to restrict access to approved participants. The naive solution — a public `mapping(address => bool)` — creates a **privacy catastrophe**:
 
-| Problem | Impact |
-|---|---|
-| **Publicly revealed identities** | Whale wallets are tagged the moment they are added |
-| **Front-running** | MEV bots see whitelisted addresses and trade ahead of them |
-| **Competitive intelligence** | Competitors track which funds enter/exit which pools |
-| **Targeted attacks** | Known large wallets become targets for phishing or governance attacks |
+| Problem                          | Impact                                                                |
+| -------------------------------- | --------------------------------------------------------------------- |
+| **Publicly revealed identities** | Whale wallets are tagged the moment they are added                    |
+| **Front-running**                | MEV bots see whitelisted addresses and trade ahead of them            |
+| **Competitive intelligence**     | Competitors track which funds enter/exit which pools                  |
+| **Targeted attacks**             | Known large wallets become targets for phishing or governance attacks |
 
 This project solves all of these by replacing the public list with a **zero-knowledge-friendly cryptographic commitment**. Membership can be proven, but membership cannot be enumerated.
 
@@ -170,20 +172,20 @@ Alice's frontend calls GET /proof/0xAliceAddress  ← Prover REST API
 
 ### End-to-End Data Flow
 
-| Step | Actor | Action | Result |
-|------|-------|--------|--------|
-| 1 | Admin | `registry.addAddress(alice)` | `WhitelistUpdated` event emitted |
-| 2 | Reactive Network | RSC listens, encodes callback | Cross-chain message dispatched |
-| 3 | Reactive Proxy | Calls `trigger.onCallback(alice, true, nonce)` | `TriggerReceived` event emitted |
-| 4 | KZG Prover | Detects `TriggerReceived`, updates local SQLite DB | New address added to prover state |
-| 5 | KZG Prover | Recomputes multilinear polynomial + KZG commitment | New 48-byte G1 point computed |
-| 6 | KZG Prover | Calls `verifier.updateCommitment(commitment, nonce)` | Commitment stored on-chain |
-| 7 | Alice | `GET /proof/0xAlice` from Prover API | `hookData` (ABI-encoded proof) returned |
-| 8 | Alice | Submits Uniswap v4 swap with `hookData` | Swap transaction sent |
-| 9 | PoolManager | Calls `hook.beforeSwap(alice, ..., hookData)` | Hook intercepts swap |
-| 10 | Hook | Calls `verifier.verify(alice, hookData)` | Proof checked |
-| 11 | Verifier | Validates `claimedValue == 1`, checks `evalPoint` bits | Returns `true` |
-| 12 | PoolManager | Swap proceeds | Alice trades, all private ✓ |
+| Step | Actor            | Action                                                 | Result                                  |
+| ---- | ---------------- | ------------------------------------------------------ | --------------------------------------- |
+| 1    | Admin            | `registry.addAddress(alice)`                           | `WhitelistUpdated` event emitted        |
+| 2    | Reactive Network | RSC listens, encodes callback                          | Cross-chain message dispatched          |
+| 3    | Reactive Proxy   | Calls `trigger.onCallback(alice, true, nonce)`         | `TriggerReceived` event emitted         |
+| 4    | KZG Prover       | Detects `TriggerReceived`, updates local SQLite DB     | New address added to prover state       |
+| 5    | KZG Prover       | Recomputes multilinear polynomial + KZG commitment     | New 48-byte G1 point computed           |
+| 6    | KZG Prover       | Calls `verifier.updateCommitment(commitment, nonce)`   | Commitment stored on-chain              |
+| 7    | Alice            | `GET /proof/0xAlice` from Prover API                   | `hookData` (ABI-encoded proof) returned |
+| 8    | Alice            | Submits Uniswap v4 swap with `hookData`                | Swap transaction sent                   |
+| 9    | PoolManager      | Calls `hook.beforeSwap(alice, ..., hookData)`          | Hook intercepts swap                    |
+| 10   | Hook             | Calls `verifier.verify(alice, hookData)`               | Proof checked                           |
+| 11   | Verifier         | Validates `claimedValue == 1`, checks `evalPoint` bits | Returns `true`                          |
+| 12   | PoolManager      | Swap proceeds                                          | Alice trades, all private ✓             |
 
 ---
 
@@ -250,7 +252,7 @@ The verifier performs two checks:
 
 1. **Evaluation check**: `claimedValue == 1` (the polynomial evaluates to 1 → the address is whitelisted).
 2. **Binding check**: The `evalPoint` matches `keccak256(sender)` bit-by-bit (the proof is bound to this exact sender).
-3. **Pairing check** *(production TODO)*: For each dimension `i`:
+3. **Pairing check** _(production TODO)_: For each dimension `i`:
    ```
    e(Q_i, [τ]₂ - [z_i]₂) == e(C_{i-1} - C_i, [1]₂)
    ```
@@ -294,10 +296,10 @@ contract WhitelistRegistry is Ownable {
 }
 ```
 
-| Function | Access | Description |
-|---|---|---|
-| `addAddress(addr)` | `onlyOwner` | Adds `addr` to the registry, increments nonce, emits event |
-| `removeAddress(addr)` | `onlyOwner` | Removes `addr`, increments nonce, emits event |
+| Function              | Access      | Description                                                |
+| --------------------- | ----------- | ---------------------------------------------------------- |
+| `addAddress(addr)`    | `onlyOwner` | Adds `addr` to the registry, increments nonce, emits event |
+| `removeAddress(addr)` | `onlyOwner` | Removes `addr`, increments nonce, emits event              |
 
 > **Key insight**: The `WhitelistRegistry` mapping IS public, but it lives on the origin chain. The privacy guarantee lives in the destination chain's `WhitelistVerifier`, which stores only the commitment — not the addresses.
 
@@ -306,7 +308,7 @@ contract WhitelistRegistry is Ownable {
 ### KZGWhitelistRSC (Reactive Smart Contract)
 
 **File**: [`src/reactive/KZGWhitelistRSC.sol`](src/reactive/KZGWhitelistRSC.sol)  
-**Chain**: Reactive Network (Kopernikus)
+**Chain**: Reactive Network (Lasna Testnet / Mainnet)
 
 A **Reactive Smart Contract** (RSC) that subscribes to `WhitelistUpdated` events on the origin chain and relays them to a destination chain via the Reactive Network's callback mechanism.
 
@@ -323,12 +325,12 @@ The `Callback` event instructs the Reactive Network executor to call `ProverTrig
 
 **Constructor parameters:**
 
-| Parameter | Description |
-|---|---|
-| `_originChainId` | Chain ID of the origin (e.g., `1301` for Unichain Sepolia) |
-| `_registryAddress` | Address of `WhitelistRegistry` on origin |
-| `_destinationChainId` | Chain ID of the destination |
-| `_triggerAddress` | Address of `ProverTrigger` on destination |
+| Parameter             | Description                                                |
+| --------------------- | ---------------------------------------------------------- |
+| `_originChainId`      | Chain ID of the origin (e.g., `1301` for Unichain Sepolia) |
+| `_registryAddress`    | Address of `WhitelistRegistry` on origin                   |
+| `_destinationChainId` | Chain ID of the destination                                |
+| `_triggerAddress`     | Address of `ProverTrigger` on destination                  |
 
 ---
 
@@ -388,17 +390,17 @@ function verify(address sender, bytes calldata hookData) external pure returns (
 
 **Events:**
 
-| Event | Parameters | Emitted when |
-|---|---|---|
+| Event               | Parameters                       | Emitted when                    |
+| ------------------- | -------------------------------- | ------------------------------- |
 | `CommitmentUpdated` | `bytes commitment, uint64 nonce` | Prover submits a new commitment |
 
 **Errors:**
 
-| Error | Condition |
-|---|---|
-| `UnauthorizedProver()` | Caller is not `proverEOA` |
-| `StaleNonce()` | Provided nonce ≤ `lastNonce` |
-| `InvalidProof()` | Reserved for future pairing check |
+| Error                  | Condition                         |
+| ---------------------- | --------------------------------- |
+| `UnauthorizedProver()` | Caller is not `proverEOA`         |
+| `StaleNonce()`         | Provided nonce ≤ `lastNonce`      |
+| `InvalidProof()`       | Reserved for future pairing check |
 
 ---
 
@@ -430,10 +432,10 @@ contract KZGWhitelistHook is IHooks {
 
 **Hook permissions:**
 
-| Hook | Enabled |
-|---|---|
-| `beforeSwap` | ✅ Yes |
-| All others | ❌ No |
+| Hook         | Enabled |
+| ------------ | ------- |
+| `beforeSwap` | ✅ Yes  |
+| All others   | ❌ No   |
 
 **Important**: Per Uniswap v4's hook address encoding scheme, the deployed hook address must have the **`BEFORE_SWAP_FLAG`** bit set in its address. The deployment script checks for this and warns if it's missing. In production, use a **CREATE2 factory** to mine a valid address.
 
@@ -462,8 +464,9 @@ The [Reactive Network](https://reactive.network) enables **event-driven cross-ch
 3. Trigger callbacks on destination chains by emitting `Callback` events.
 
 In this system:
+
 - **Origin**: Unichain Sepolia (`chainId = 1301`) — where admins manage the `WhitelistRegistry`.
-- **RSC**: Lives on the Reactive Network (Kopernikus testnet).
+- **RSC**: Lives on the Reactive Network (Lasna or Mainnet).
 - **Destination**: Unichain Sepolia — where `ProverTrigger` receives the callback.
 
 This cross-chain relay ensures the off-chain prover is notified of whitelist changes without manual intervention or a centralized bot.
@@ -524,6 +527,7 @@ Returns the current prover state.
 Generates and returns the `hookData` for a whitelisted address.
 
 **Success** (HTTP 200):
+
 ```json
 {
   "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
@@ -532,6 +536,7 @@ Generates and returns the `hookData` for a whitelisted address.
 ```
 
 **Not whitelisted** (HTTP 404):
+
 ```json
 {
   "error": "Address 0x... is not whitelisted"
@@ -570,6 +575,7 @@ All cryptographic logic lives in [`kzg-prover/src/kzg/`](kzg-prover/src/kzg/):
 Wrappers around `blst` for scalar field elements (`Fr`) and G1 curve points (`G1`).
 
 Key types:
+
 - `Fr` — BLS12-381 scalar field element
 - `G1` — BLS12-381 G1 group element with `.mul()`, `.add()`, `.compress()` methods
 
@@ -615,11 +621,21 @@ pub fn encode_hookdata(point: &[bool], quotient_commitments: &[G1]) -> Vec<u8>
 
 ## Supported Networks
 
-| Network | Chain ID | Role |
-|---|---|---|
-| Unichain Sepolia | `1301` | Origin: `WhitelistRegistry`, `WhitelistVerifier`, `ProverTrigger`, `KZGWhitelistHook` |
-| Reactive Network (Kopernikus) | — | `KZGWhitelistRSC` (RSC relay) |
-| Local Anvil | `31337` | Development / testing |
+| Network          | Chain ID  | RPC URL                        | Role                 |
+| ---------------- | --------- | ------------------------------ | -------------------- |
+| Unichain Sepolia | `1301`    | `https://sepolia.unichain.org` | Origin & Destination |
+| Reactive Lasna   | `5318007` | `https://lasna-rpc.rnk.dev/`   | Testnet RSC relay    |
+| Reactive Mainnet | `1597`    | `https://mainnet-rpc.rnk.dev/` | Production RSC relay |
+
+### Get Testnet lREACT
+
+To obtain testnet REACT (lREACT) on Lasna, send ETH to one of the faucet contracts:
+
+- **Etereum Sepolia**: `0x9b9BB25f1A81078C544C829c5EB7822d747Cf434`
+- **Base Sepolia**: `0x2afaFD298b23b62760711756088F75B7409f5967`
+
+Exchange rate: 1 ETH → 100 lREACT.
+Max: 5 ETH per transaction.
 
 ---
 
@@ -693,6 +709,7 @@ uniwsap-v4-privacy/
 ### Git Submodules
 
 The project uses git submodules for Solidity dependencies:
+
 ```bash
 git submodule update --init --recursive
 ```
@@ -730,29 +747,29 @@ cp .env.deployment.example .env
 
 ### Solidity Deployment Variables
 
-| Variable | Description | Example |
-|---|---|---|
-| `UNICHAIN_RPC_URL` | RPC endpoint for Unichain Sepolia | `https://sepolia.unichain.org` |
-| `UNICHAIN_PRIVATE_KEY` | Deployer private key (hex, with `0x` prefix) | `0x...` |
-| `POOL_MANAGER` | Canonical Uniswap v4 PoolManager address on Unichain | `0x...` |
-| `PROVER_ADDRESS` | EOA address of the off-chain KZG prover | `0x...` |
-| `REACTIVE_RPC_URL` | RPC for Reactive Network (Kopernikus) | `https://kopernikus.reactive.network` |
-| `REACTIVE_PRIVATE_KEY` | Private key for Reactive Network deployment | `0x...` |
-| `REACTIVE_CALLBACK_PROXY` | Kopernikus system callback proxy address | `0x...` |
-| `ORIGIN_CHAIN_ID` | Chain ID of origin (Unichain Sepolia) | `1301` |
-| `DEST_CHAIN_ID` | Chain ID of destination | `1301` |
+| Variable                   | Description                                          | Example                        |
+| -------------------------- | ---------------------------------------------------- | ------------------------------ |
+| `UNICHAIN_RPC_URL`         | RPC endpoint for Unichain Sepolia                    | `https://sepolia.unichain.org` |
+| `UNICHAIN_PRIVATE_KEY`     | Deployer private key (hex, with `0x` prefix)         | `0x...`                        |
+| `POOL_MANAGER`             | Canonical Uniswap v4 PoolManager address on Unichain | `0x...`                        |
+| `PROVER_ADDRESS`           | EOA address of the off-chain KZG prover              | `0x...`                        |
+| `REACTIVE_RPC_URL`         | RPC for Reactive Network (Lasna or Mainnet)          | `https://lasna-rpc.rnk.dev/`   |
+| `REACTIVE_PRIVATE_KEY`     | Private key for Reactive Network deployment          | `0x...`                        |
+| `REACTIVE_SYSTEM_CONTRACT` | Reactive Network system contract address             | `0x0000...fffFfF`              |
+| `ORIGIN_CHAIN_ID`          | Chain ID of origin (Unichain Sepolia)                | `1301`                         |
+| `DEST_CHAIN_ID`            | Chain ID of destination                              | `1301`                         |
 
 ### Prover Service Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `RPC_URL` | ✅ | RPC URL for the chain the prover watches |
-| `REGISTRY_ADDRESS` | ✅ | Deployed `WhitelistRegistry` address |
-| `TRIGGER_ADDRESS` | ✅ | Deployed `ProverTrigger` address |
-| `PROVER_PRIVATE_KEY` | ❌ | If set, enables on-chain commitment submission |
-| `VERIFIER_ADDRESS` | ❌ | `WhitelistVerifier` address (required if `PROVER_PRIVATE_KEY` is set) |
-| `DB_PATH` | ❌ | SQLite file path (default: `prover.db`) |
-| `SERVER_PORT` | ❌ | API server port (default: `8080`) |
+| Variable             | Required | Description                                                           |
+| -------------------- | -------- | --------------------------------------------------------------------- |
+| `RPC_URL`            | ✅       | RPC URL for the chain the prover watches                              |
+| `REGISTRY_ADDRESS`   | ✅       | Deployed `WhitelistRegistry` address                                  |
+| `TRIGGER_ADDRESS`    | ✅       | Deployed `ProverTrigger` address                                      |
+| `PROVER_PRIVATE_KEY` | ❌       | If set, enables on-chain commitment submission                        |
+| `VERIFIER_ADDRESS`   | ❌       | `WhitelistVerifier` address (required if `PROVER_PRIVATE_KEY` is set) |
+| `DB_PATH`            | ❌       | SQLite file path (default: `prover.db`)                               |
+| `SERVER_PORT`        | ❌       | API server port (default: `8080`)                                     |
 
 ---
 
@@ -771,6 +788,7 @@ forge script script/DeployUnichain.s.sol:DeployUnichain \
 ```
 
 This deploys:
+
 1. `WhitelistRegistry` — admin entry point
 2. `WhitelistVerifier` — KZG commitment store
 3. `ProverTrigger` — Reactive callback receiver
@@ -813,6 +831,7 @@ RUST_LOG=info cargo run --release
 ```
 
 Expected startup output:
+
 ```
 ╔══════════════════════════════════╗
 ║       KZG Whitelist Prover        ║
@@ -872,6 +891,7 @@ forge coverage
 ```
 
 The main test file `test/KZGWhitelistTest.t.sol` covers:
+
 1. Non-whitelisted address fails `verify()` with empty proof.
 2. Admin adds address to `WhitelistRegistry`.
 3. Simulated Reactive RSC callback triggers `ProverTrigger`.
@@ -881,11 +901,13 @@ The main test file `test/KZGWhitelistTest.t.sol` covers:
 7. Alice is accepted by `KZGWhitelistHook.beforeSwap()`.
 
 **Format code:**
+
 ```bash
 forge fmt
 ```
 
 **Gas snapshot:**
+
 ```bash
 forge snapshot
 ```
@@ -907,19 +929,19 @@ cargo test test_evaluate_whitelisted
 
 Key unit tests:
 
-| Test | Location | Verifies |
-|---|---|---|
-| `test_bits_length` | `encoding.rs` | 20 bits extracted per address |
-| `test_same_address_same_bits` | `encoding.rs` | Deterministic encoding |
-| `test_different_addresses_different_bits` | `encoding.rs` | Unique encoding per address |
-| `test_build_table_single_address` | `encoding.rs` | Table has exactly one `1` entry |
-| `test_build_table_empty` | `encoding.rs` | Empty whitelist → all-zero table |
-| `test_evaluate_whitelisted` | `proof.rs` | Whitelisted address evaluates to 1 |
-| `test_evaluate_not_whitelisted` | `proof.rs` | Non-whitelisted evaluates to 0 |
-| `test_proof_length` | `proof.rs` | Proof has exactly `num_vars` quotient commitments |
-| `test_srs_length` | `srs.rs` | SRS has `2^num_vars` elements |
-| `test_srs_first_element_is_generator` | `srs.rs` | `srs[0] = G1 * τ^0 = G1` |
-| `test_srs_elements_differ` | `srs.rs` | Subsequent SRS elements are distinct |
+| Test                                      | Location      | Verifies                                          |
+| ----------------------------------------- | ------------- | ------------------------------------------------- |
+| `test_bits_length`                        | `encoding.rs` | 20 bits extracted per address                     |
+| `test_same_address_same_bits`             | `encoding.rs` | Deterministic encoding                            |
+| `test_different_addresses_different_bits` | `encoding.rs` | Unique encoding per address                       |
+| `test_build_table_single_address`         | `encoding.rs` | Table has exactly one `1` entry                   |
+| `test_build_table_empty`                  | `encoding.rs` | Empty whitelist → all-zero table                  |
+| `test_evaluate_whitelisted`               | `proof.rs`    | Whitelisted address evaluates to 1                |
+| `test_evaluate_not_whitelisted`           | `proof.rs`    | Non-whitelisted evaluates to 0                    |
+| `test_proof_length`                       | `proof.rs`    | Proof has exactly `num_vars` quotient commitments |
+| `test_srs_length`                         | `srs.rs`      | SRS has `2^num_vars` elements                     |
+| `test_srs_first_element_is_generator`     | `srs.rs`      | `srs[0] = G1 * τ^0 = G1`                          |
+| `test_srs_elements_differ`                | `srs.rs`      | Subsequent SRS elements are distinct              |
 
 ---
 
@@ -932,6 +954,7 @@ The Rust prover exposes a REST API at `http://localhost:8080` (or as configured 
 Returns the current prover state.
 
 **Response:**
+
 ```json
 {
   "latest_block": 12345678,
@@ -945,9 +968,11 @@ Returns the current prover state.
 Generates a KZG membership proof for the given Ethereum address.
 
 **Parameters:**
+
 - `:address` — Ethereum address (hex, with or without `0x` prefix, case-insensitive)
 
 **Success Response (200):**
+
 ```json
 {
   "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
@@ -958,6 +983,7 @@ Generates a KZG membership proof for the given Ethereum address.
 The `hook_data` field is ready to be passed directly as `hookData` in the Uniswap v4 swap call.
 
 **Error Response (404) — Address not whitelisted:**
+
 ```json
 {
   "error": "Address 0x... is not whitelisted"
@@ -978,15 +1004,16 @@ abi.encode(
 )
 ```
 
-| Field | Size | Description |
-|---|---|---|
-| `claimedValue` | 32 bytes | Always `1` for a valid member proof |
-| `evalPoint[0..19]` | 20 × 32 = 640 bytes | First 20 bits of `keccak256(sender)` as `uint256` words |
-| `quotientCommitments[0..19]` | dynamic | 20 compressed G1 points (48 bytes each) + ABI overhead |
+| Field                        | Size                | Description                                             |
+| ---------------------------- | ------------------- | ------------------------------------------------------- |
+| `claimedValue`               | 32 bytes            | Always `1` for a valid member proof                     |
+| `evalPoint[0..19]`           | 20 × 32 = 640 bytes | First 20 bits of `keccak256(sender)` as `uint256` words |
+| `quotientCommitments[0..19]` | dynamic             | 20 compressed G1 points (48 bytes each) + ABI overhead  |
 
 Total `hookData` size: approximately **~3 KB**.
 
 The `_verifyEvalPoint()` function in `WhitelistVerifier` performs:
+
 ```solidity
 bytes32 hash = keccak256(abi.encodePacked(addr));
 for (uint256 i = 0; i < 20; i++) {
@@ -1003,14 +1030,14 @@ This ensures the proof is **bound to the sender** — it cannot be reused by a d
 
 ### Current Security Guarantees (Development)
 
-| Property | Status | Notes |
-|---|---|---|
-| Address binding | ✅ Implemented | `evalPoint` is bound to `keccak256(sender)` |
-| Anti-replay (stale commitment) | ✅ Implemented | Monotonic nonce on `WhitelistVerifier` |
-| Unauthorized commitment update | ✅ Implemented | Only `proverEOA` may call `updateCommitment()` |
-| Unauthorized trigger | ✅ Implemented | Only Reactive callback proxy may call `onCallback()` |
-| Cryptographic membership proof | ⚠️ Partial | Pairing check not yet implemented |
-| SRS security | ⚠️ Weak | `τ = 7` in development — discrete log is known |
+| Property                       | Status         | Notes                                                |
+| ------------------------------ | -------------- | ---------------------------------------------------- |
+| Address binding                | ✅ Implemented | `evalPoint` is bound to `keccak256(sender)`          |
+| Anti-replay (stale commitment) | ✅ Implemented | Monotonic nonce on `WhitelistVerifier`               |
+| Unauthorized commitment update | ✅ Implemented | Only `proverEOA` may call `updateCommitment()`       |
+| Unauthorized trigger           | ✅ Implemented | Only Reactive callback proxy may call `onCallback()` |
+| Cryptographic membership proof | ⚠️ Partial     | Pairing check not yet implemented                    |
+| SRS security                   | ⚠️ Weak        | `τ = 7` in development — discrete log is known       |
 
 ### Production Security Gaps
 
@@ -1072,6 +1099,7 @@ The prover's local SQLite database may be out of sync. Check the prover logs for
 ### Rust compilation fails: `blst` not found
 
 Ensure you have a C compiler installed:
+
 ```bash
 # Ubuntu/Debian
 sudo apt install build-essential
