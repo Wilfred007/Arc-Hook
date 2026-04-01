@@ -64,48 +64,29 @@ contract KZGWhitelistTest is Test {
             evalPoint[i] = (uint256(hash) >> i) & 1;
         }
         bytes[20] memory quotientCommitments;
-        for (uint i = 0; i < 20; i++) quotientCommitments[i] = new bytes(48);
+        for (uint256 i = 0; i < 20; i++) {
+            quotientCommitments[i] = new bytes(48);
+        }
 
-        bytes memory proof = abi.encode(
-            uint256(1),
-            evalPoint,
-            quotientCommitments
-        );
+        bytes memory proof = abi.encode(uint256(1), evalPoint, quotientCommitments);
 
         assertTrue(verifier.verify(alice, proof));
 
         // 6. Test hook revert for Bob
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                KZGWhitelistHook.NotWhitelisted.selector,
-                bob
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(KZGWhitelistHook.NotWhitelisted.selector, bob));
         vm.prank(address(manager)); // Mock call from manager
         hook.beforeSwap(
             bob,
-            PoolKey(
-                Currency.wrap(address(0)),
-                Currency.wrap(address(0)),
-                0,
-                0,
-                IHooks(address(0))
-            ),
+            PoolKey(Currency.wrap(address(0)), Currency.wrap(address(0)), 0, 0, IHooks(address(0))),
             SwapParams(true, 0, 0),
             proof
         );
 
         // 7. Test hook success for Alice
         vm.prank(address(manager));
-        (bytes4 selector, , ) = hook.beforeSwap(
+        (bytes4 selector,,) = hook.beforeSwap(
             alice,
-            PoolKey(
-                Currency.wrap(address(0)),
-                Currency.wrap(address(0)),
-                0,
-                0,
-                IHooks(address(0))
-            ),
+            PoolKey(Currency.wrap(address(0)), Currency.wrap(address(0)), 0, 0, IHooks(address(0))),
             SwapParams(true, 0, 0),
             proof
         );
