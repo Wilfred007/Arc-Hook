@@ -17,9 +17,38 @@ interface IReactive {
         bytes32 transactionHash;
     }
 
-    event Callback(uint256 indexed chainId, address indexed target, uint256 gasLimit, bytes payload);
+    event Callback(
+        uint256 indexed chainId,
+        address indexed target,
+        uint256 gasLimit,
+        bytes payload
+    );
 
     function react(LogEntry calldata log) external;
+}
+
+/**
+ * @title KZGWhitelistRSC
+ * @notice Reactive Smart Contract that relays WhitelistUpdated events.
+ */
+interface ISystemContract {
+    function subscribe(
+        uint256 chainId,
+        address source,
+        uint256 topic_0,
+        uint256 topic_1,
+        uint256 topic_2,
+        uint256 topic_3
+    ) external;
+
+    function unsubscribe(
+        uint256 chainId,
+        address source,
+        uint256 topic_0,
+        uint256 topic_1,
+        uint256 topic_2,
+        uint256 topic_3
+    ) external;
 }
 
 /**
@@ -75,7 +104,23 @@ contract KZGWhitelistRSC is IReactive {
             destinationChainId,
             triggerAddress,
             200000, // gasLimit
-            abi.encodeWithSignature("onCallback(address,bool,uint256)", addr, added, nonce)
+            abi.encodeWithSignature(
+                "onCallback(address,bool,uint256)",
+                addr,
+                added,
+                nonce
+            )
+        );
+    }
+
+    function subscribe(address systemContract) external {
+        ISystemContract(systemContract).subscribe(
+            originChainId,
+            registryAddress,
+            uint256(WHITELIST_UPDATED_TOPIC_0),
+            0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, // topic 1
+            0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF, // topic 2
+            0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF // topic 3
         );
     }
 }
