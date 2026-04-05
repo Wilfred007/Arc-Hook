@@ -1,0 +1,8 @@
+Compiling 1 files with Solc 0.8.26
+Solc 0.8.26 finished in 213.87ms
+Error: Compiler run failed:
+Error (7576): Undeclared identifier.
+  --> script/HookMiner.s.sol:25:27:
+   |
+25 |                 keccak256(bytecode)
+   |                           ^^^^^^^^

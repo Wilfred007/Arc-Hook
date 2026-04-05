@@ -1,0 +1,14 @@
+Compiling 1 files with Solc 0.8.26
+Solc 0.8.26 finished in 215.60ms
+Error: Compiler run failed:
+Error (7576): Undeclared identifier.
+  --> script/DeployHook.s.sol:23:28:
+   |
+23 |         address hookAddr = Create2Factory(factory).deploy(bytecode, salt);
+   |                            ^^^^^^^^^^^^^^
+
+Error (7576): Undeclared identifier.
+  --> script/DeployHook.s.sol:23:59:
+   |
+23 |         address hookAddr = Create2Factory(factory).deploy(bytecode, salt);
+   |                                                           ^^^^^^^^

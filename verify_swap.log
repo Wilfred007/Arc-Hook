@@ -1,0 +1,8 @@
+Compiling 2 files with Solc 0.8.26
+Solc 0.8.26 finished in 486.16ms
+Error: Compiler run failed:
+Error (9582): Member "SwapParams" not found or not visible after argument-dependent lookup in type(contract IPoolManager).
+  --> script/VerifySwap.s.sol:52:13:
+   |
+52 |             IPoolManager.SwapParams({
+   |             ^^^^^^^^^^^^^^^^^^^^^^^

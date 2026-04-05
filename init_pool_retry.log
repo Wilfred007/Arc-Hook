@@ -1,0 +1,34 @@
+No files changed, compilation skipped
+Traces:
+  [1230784] → new InitializePool@0x5b73C5498c1E3b4dbA84de0F1833c4a029d90519
+    └─ ← [Return] 6037 bytes of code
+
+  [1234409] InitializePool::run()
+    ├─ [0] VM::envUint("UNICHAIN_PRIVATE_KEY") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("POOL_MANAGER") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("HOOK_ADDRESS") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::startBroadcast(<pk>)
+    │   └─ ← [Return]
+    ├─ [578610] → new MockToken@0xb513b5232ec2f1615D20d1a1784216a811507008
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x052faB7c34011dA32d117d8354bdEC6b0Ca28d6e, value: 1000000000000000000000000 [1e24])
+    │   └─ ← [Return] 2431 bytes of code
+    ├─ [578610] → new MockToken@0xf464C26baa2334737dE1f64b5243e48D1d5F4756
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x052faB7c34011dA32d117d8354bdEC6b0Ca28d6e, value: 1000000000000000000000000 [1e24])
+    │   └─ ← [Return] 2431 bytes of code
+    ├─ [0] console::log("Token0:", MockToken: [0xb513b5232ec2f1615D20d1a1784216a811507008]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("Token1:", MockToken: [0xf464C26baa2334737dE1f64b5243e48D1d5F4756]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] ::initialize(PoolKey({ currency0: 0xb513b5232ec2f1615D20d1a1784216a811507008, currency1: 0xf464C26baa2334737dE1f64b5243e48D1d5F4756, fee: 3000, tickSpacing: 60, hooks: 0x2636daCfd4902847252EAF99cD8B2190293692D5 }), 79228162514264337593543950336 [7.922e28])
+    │   └─ ← [Stop]
+    └─ ← [Revert] call to non-contract address 0x1F98400000000000000000000000000000000004
+
+
+
+== Logs ==
+  Token0: 0xb513b5232ec2f1615D20d1a1784216a811507008
+  Token1: 0xf464C26baa2334737dE1f64b5243e48D1d5F4756
+Error: script failed: call to non-contract address 0x1F98400000000000000000000000000000000004

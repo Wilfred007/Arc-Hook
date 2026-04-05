@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+:root {
+  --background: #020617;
+  --foreground: #f8fafc;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: #3b82f6;
+  --color-accent-glow: #60a5fa;
+  --color-institutional: #1e293b;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+}
+
+@utility glass {
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+@utility glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+@utility crypto-grid {
+  background-image: radial-gradient(
+    rgba(59, 130, 246, 0.1) 1px,
+    transparent 1px
+  );
+  background-size: 40px 40px;
+}

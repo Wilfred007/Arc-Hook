@@ -1,0 +1,46 @@
+Compiling 1 files with Solc 0.8.26
+Solc 0.8.26 finished in 1.35s
+Compiler run successful with warnings:
+Warning (2072): Unused local variable.
+  --> script/DeployHook.s.sol:12:9:
+   |
+12 |         uint256 deployerPrivateKey = vm.envUint("UNICHAIN_PRIVATE_KEY");
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Traces:
+  [1224378] → new DeployHook@0x9f7cF1d1F558E57ef88a59ac3D47214eF25B6A06
+    └─ ← [Return] 6005 bytes of code
+
+  [685638] DeployHook::run()
+    ├─ [0] VM::envUint("UNICHAIN_PRIVATE_KEY") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("POOL_MANAGER") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("VERIFIER_ADDRESS") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envUint("HOOK_SALT") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::toString(0x56574495b645eac71988fce35b69b55b3257afd075c4284085b532399488903d) [staticcall]
+    │   └─ ← [Return] "0x56574495b645eac71988fce35b69b55b3257afd075c4284085b532399488903d"
+    ├─ [0] console::log("Bytecode Hash:", "0x56574495b645eac71988fce35b69b55b3257afd075c4284085b532399488903d") [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("Deployer:", DefaultSender: [0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [638815] → new KZGWhitelistHook@0x5Ce015503858C0b6874434399B604cB114Aa7707
+    │   └─ ← [Return] 3189 bytes of code
+    ├─ [0] console::log("KZGWhitelistHook deployed at:", KZGWhitelistHook: [0x5Ce015503858C0b6874434399B604cB114Aa7707]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("ERROR: Hook address does not have BEFORE_SWAP_FLAG!") [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] VM::stopBroadcast()
+    │   └─ ← [Revert] vm.stopBroadcast: no broadcast in progress to stop
+    └─ ← [Revert] vm.stopBroadcast: no broadcast in progress to stop
+
+
+
+== Logs ==
+  Bytecode Hash: 0x56574495b645eac71988fce35b69b55b3257afd075c4284085b532399488903d
+  Deployer: 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38
+  KZGWhitelistHook deployed at: 0x5Ce015503858C0b6874434399B604cB114Aa7707
+  ERROR: Hook address does not have BEFORE_SWAP_FLAG!
+Error: script failed: vm.stopBroadcast: no broadcast in progress to stop

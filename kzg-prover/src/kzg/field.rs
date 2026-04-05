@@ -166,4 +166,23 @@ impl G1 {
         unsafe { blst_p1_compress(out.as_mut_ptr(), &self.0) };
         out
     }
+
+    /// Serialize to 96 bytes (BLS12-381 uncompressed G1).
+    pub fn serialize_uncompressed(&self) -> [u8; 96] {
+        let mut out = [0u8; 96];
+        unsafe { blst_p1_serialize(out.as_mut_ptr(), &self.0) };
+        out
+    }
+}
+
+impl G2 {
+    pub fn generator() -> Self {
+        unsafe { G2(*blst_p2_generator()) }
+    }
+
+    pub fn serialize_uncompressed(&self) -> [u8; 192] {
+        let mut out = [0u8; 192];
+        unsafe { blst_p2_serialize(out.as_mut_ptr(), &self.0) };
+        out
+    }
 }

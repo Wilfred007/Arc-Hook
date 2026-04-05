@@ -1,0 +1,35 @@
+Compiling 1 files with Solc 0.8.26
+Solc 0.8.26 finished in 1.08s
+Compiler run successful!
+Script ran successfully.
+
+== Logs ==
+  Using PoolManager: 0x9e512795Be621572Ef073bc4d395554F71334D8a
+  Using Hook: 0xb9877b41424B21126134e0f0C66E43Cfa24d0080
+  Token0: 0x973b782caaBa30E294A854b9361Dd831b41c85D3
+  Token1: 0x2Df81078EbCe37b6D7f49b5CbfAe5102CB08faf4
+  Pool initialized!
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 1301
+
+Estimated gas price: 0.001000001 gwei
+
+Estimated total gas used for script: 71480
+
+Estimated amount required: 0.00000007148007148 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+Transactions saved to: /Users/inhousecodes/Documents/Arc-Hooks/Arc-Hook/broadcast/InitializePool.s.sol/1301/run-latest.json
+
+Sensitive values saved to: /Users/inhousecodes/Documents/Arc-Hooks/Arc-Hook/cache/InitializePool.s.sol/1301/run-latest.json
+

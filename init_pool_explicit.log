@@ -1,0 +1,42 @@
+Compiling 1 files with Solc 0.8.26
+Solc 0.8.26 finished in 1.47s
+Compiler run successful!
+Traces:
+  [1256811] → new InitializePool@0x5b73C5498c1E3b4dbA84de0F1833c4a029d90519
+    └─ ← [Return] 6167 bytes of code
+
+  [1236972] InitializePool::run()
+    ├─ [0] VM::envUint("UNICHAIN_PRIVATE_KEY") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("POOL_MANAGER") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("HOOK_ADDRESS") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] console::log("Using PoolManager:", : [0x9e512795Be621572Ef073bc4d395554F71334D8a]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("Using Hook:", 0x2636daCfd4902847252EAF99cD8B2190293692D5) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] VM::startBroadcast(<pk>)
+    │   └─ ← [Return]
+    ├─ [578610] → new MockToken@0xb513b5232ec2f1615D20d1a1784216a811507008
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x052faB7c34011dA32d117d8354bdEC6b0Ca28d6e, value: 1000000000000000000000000 [1e24])
+    │   └─ ← [Return] 2431 bytes of code
+    ├─ [578610] → new MockToken@0xf464C26baa2334737dE1f64b5243e48D1d5F4756
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x052faB7c34011dA32d117d8354bdEC6b0Ca28d6e, value: 1000000000000000000000000 [1e24])
+    │   └─ ← [Return] 2431 bytes of code
+    ├─ [0] console::log("Token0:", MockToken: [0xb513b5232ec2f1615D20d1a1784216a811507008]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("Token1:", MockToken: [0xf464C26baa2334737dE1f64b5243e48D1d5F4756]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [1484] ::initialize(PoolKey({ currency0: 0xb513b5232ec2f1615D20d1a1784216a811507008, currency1: 0xf464C26baa2334737dE1f64b5243e48D1d5F4756, fee: 3000, tickSpacing: 60, hooks: 0x2636daCfd4902847252EAF99cD8B2190293692D5 }), 79228162514264337593543950336 [7.922e28])
+    │   └─ ← [Revert] HookAddressNotValid(0x2636daCfd4902847252EAF99cD8B2190293692D5)
+    └─ ← [Revert] HookAddressNotValid(0x2636daCfd4902847252EAF99cD8B2190293692D5)
+
+
+
+== Logs ==
+  Using PoolManager: 0x9e512795Be621572Ef073bc4d395554F71334D8a
+  Using Hook: 0x2636daCfd4902847252EAF99cD8B2190293692D5
+  Token0: 0xb513b5232ec2f1615D20d1a1784216a811507008
+  Token1: 0xf464C26baa2334737dE1f64b5243e48D1d5F4756
+Error: script failed: HookAddressNotValid(0x2636daCfd4902847252EAF99cD8B2190293692D5)

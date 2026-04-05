@@ -1,0 +1,40 @@
+No files changed, compilation skipped
+Traces:
+  [1256811] → new InitializePool@0x5b73C5498c1E3b4dbA84de0F1833c4a029d90519
+    └─ ← [Return] 6167 bytes of code
+
+  [1235678] InitializePool::run()
+    ├─ [0] VM::envUint("UNICHAIN_PRIVATE_KEY") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("POOL_MANAGER") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("HOOK_ADDRESS") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] console::log("Using PoolManager:", : [0x1F98400000000000000000000000000000000004]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("Using Hook:", 0xb9877b41424B21126134e0f0C66E43Cfa24d0080) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] VM::startBroadcast(<pk>)
+    │   └─ ← [Return]
+    ├─ [578610] → new MockToken@0xad7E896E228824e1aC2C7B5DDaB5CF7e4b9bE765
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x052faB7c34011dA32d117d8354bdEC6b0Ca28d6e, value: 1000000000000000000000000 [1e24])
+    │   └─ ← [Return] 2431 bytes of code
+    ├─ [578610] → new MockToken@0x62e5409C0ab3cD44a1d90632880ce4212DC81235
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x052faB7c34011dA32d117d8354bdEC6b0Ca28d6e, value: 1000000000000000000000000 [1e24])
+    │   └─ ← [Return] 2431 bytes of code
+    ├─ [0] console::log("Token0:", MockToken: [0xad7E896E228824e1aC2C7B5DDaB5CF7e4b9bE765]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("Token1:", MockToken: [0x62e5409C0ab3cD44a1d90632880ce4212DC81235]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] ::initialize(PoolKey({ currency0: 0x62e5409C0ab3cD44a1d90632880ce4212DC81235, currency1: 0xad7E896E228824e1aC2C7B5DDaB5CF7e4b9bE765, fee: 3000, tickSpacing: 60, hooks: 0xb9877b41424B21126134e0f0C66E43Cfa24d0080 }), 79228162514264337593543950336 [7.922e28])
+    │   └─ ← [Stop]
+    └─ ← [Revert] call to non-contract address 0x1F98400000000000000000000000000000000004
+
+
+
+== Logs ==
+  Using PoolManager: 0x1F98400000000000000000000000000000000004
+  Using Hook: 0xb9877b41424B21126134e0f0C66E43Cfa24d0080
+  Token0: 0xad7E896E228824e1aC2C7B5DDaB5CF7e4b9bE765
+  Token1: 0x62e5409C0ab3cD44a1d90632880ce4212DC81235
+Error: script failed: call to non-contract address 0x1F98400000000000000000000000000000000004

@@ -80,12 +80,12 @@ pub async fn start_listener(
                 let addresses = db_guard.get_all_addresses()?;
                 let table = encoding::build_table(&addresses, NUM_VARS);
                 let commitment = commit::commit(&table, &srs_data);
-                let commitment_bytes = commitment.compress().to_vec();
+                let commitment_bytes = commitment.serialize_uncompressed();
                 let commitment_hex = hex::encode(&commitment_bytes);
                 (addresses, commitment_hex)
             };
 
-            log::info!("New commitment: 0x{}", commitment_hex);
+            log::info!("New commitment (96b): 0x{}", commitment_hex);
 
             // ── 4. Persist state ──────────────────────────────────────────
             // Advance start block past the last processed block to avoid replaying.
@@ -102,7 +102,7 @@ pub async fn start_listener(
                 // Re-compress if we need it here, or just use the one from before
                 let table = encoding::build_table(&addresses, NUM_VARS);
                 let commitment = commit::commit(&table, &srs_data);
-                let commitment_bytes = commitment.compress().to_vec();
+                let commitment_bytes = commitment.serialize_uncompressed().to_vec();
 
                 match client
                     .submit_commitment(va, commitment_bytes, max_nonce, pk)

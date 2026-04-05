@@ -1,0 +1,28 @@
+Compiling 1 files with Solc 0.8.26
+Solc 0.8.26 finished in 1.06s
+Compiler run successful with warnings:
+Warning (2072): Unused local variable.
+  --> script/HookMiner.s.sol:12:9:
+   |
+12 |         address manager = vm.envAddress("POOL_MANAGER");
+   |         ^^^^^^^^^^^^^^^
+
+Warning (2072): Unused local variable.
+  --> script/HookMiner.s.sol:13:9:
+   |
+13 |         address verifier = vm.envAddress("VERIFIER_ADDRESS");
+   |         ^^^^^^^^^^^^^^^^
+
+Warning (2018): Function state mutability can be restricted to view
+  --> script/HookMiner.s.sol:11:5:
+   |
+11 |     function run() external {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Script ran successfully.
+
+== Logs ==
+  Mining salt for BEFORE_SWAP_FLAG (1 << 7) via Factory...
+  No exact salt found in 10,000 iterations. Searching up to 100,000...
+  Found salt: 25903
+  Hook Address: 0xb9877b41424B21126134e0f0C66E43Cfa24d0080

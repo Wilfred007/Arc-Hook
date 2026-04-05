@@ -20,3 +20,10 @@ env_logger = "0.10"
 lazy_static = "1.4"
 actix-web = "4"
 actix-cors = "0.7"
+[[bin]]
+name = "gen_srs"
+path = "src/bin/gen_srs.rs"
+
+[[bin]]
+name = "kzg-prover"
+path = "src/main.rs"

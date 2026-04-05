@@ -1,0 +1,8 @@
+Compiling 6 files with Solc 0.8.26
+Solc 0.8.26 finished in 487.04ms
+Error: Compiler run failed:
+Error (9582): Member "ModifyLiquidityParams" not found or not visible after argument-dependent lookup in type(contract IPoolManager).
+  --> script/AddLiquidity.s.sol:54:13:
+   |
+54 |             IPoolManager.ModifyLiquidityParams({
+   |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -127,7 +127,7 @@ pub fn encode_hookdata(point: &[bool], quotient_commitments: &[G1]) -> Vec<u8> {
     // bytes[20] is a dynamic type. Its head slot is the offset to the bytes[20] data.
     // Current offset from start of the tuple encoding:
     //   32 (claimedValue) + 640 (evalPoint) + 32 (offset slot) = 704 bytes before the data
-    let offset_to_bytes_array: u32 = 32 + 640; // offset from the start of the offset slot onwards
+    let offset_to_bytes_array: u32 = 32 + 640 + 32; // Offset from start of tuple to data start
     let mut offset_word = [0u8; 32];
     offset_word[28..32].copy_from_slice(&offset_to_bytes_array.to_be_bytes());
     out.extend_from_slice(&offset_word);
@@ -138,9 +138,9 @@ pub fn encode_hookdata(point: &[bool], quotient_commitments: &[G1]) -> Vec<u8> {
     //
     // Each compressed G1 point is 48 bytes. Padded to 64 bytes (next multiple of 32).
 
-    let element_size = 48usize;
-    let element_padded = ((element_size + 31) / 32) * 32; // 64 bytes
-    let per_element_encoded = 32 + element_padded;        // 32 (len) + 64 (data) = 96 bytes
+    let element_size = 96usize;
+    let element_padded = ((element_size + 31) / 32) * 32; // 96 bytes
+    let per_element_encoded = 32 + element_padded;        // 32 (len) + 96 (data) = 128 bytes
 
     // Offsets within the bytes[20] tail section (relative to start of the 20-offset block)
     for i in 0..20usize {
@@ -152,19 +152,15 @@ pub fn encode_hookdata(point: &[bool], quotient_commitments: &[G1]) -> Vec<u8> {
 
     // Write each element: length word + padded data
     for qc in quotient_commitments.iter() {
-        let compressed = qc.compress(); // 48 bytes
+        let uncompressed = qc.serialize_uncompressed(); // 96 bytes
 
         // Length word (32 bytes)
         let mut len_word = [0u8; 32];
-        len_word[29..32].copy_from_slice(&(element_size as u32).to_be_bytes()[1..]); // 48 as 3 bytes
-        len_word[30] = 0;
-        len_word[31] = 48;
+        len_word[31] = 96;
         out.extend_from_slice(&len_word);
 
-        // Data padded to 64 bytes
-        let mut data = [0u8; 64];
-        data[..48].copy_from_slice(&compressed);
-        out.extend_from_slice(&data);
+        // Data (96 bytes)
+        out.extend_from_slice(&uncompressed);
     }
 
     out

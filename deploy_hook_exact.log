@@ -1,0 +1,30 @@
+No files changed, compilation skipped
+Script ran successfully.
+
+== Logs ==
+  KZGWhitelistHook deployed at: 0x3f553B04720bEf2D2192D5C4402F2AD511880558
+  ERROR: Hook address does not have BEFORE_SWAP_FLAG!
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 1301
+
+Estimated gas price: 0.001000001 gwei
+
+Estimated total gas used for script: 1027279
+
+Estimated amount required: 0.000001027280027279 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+Transactions saved to: /Users/inhousecodes/Documents/Arc-Hooks/Arc-Hook/broadcast/DeployHook.s.sol/1301/run-latest.json
+
+Sensitive values saved to: /Users/inhousecodes/Documents/Arc-Hooks/Arc-Hook/cache/DeployHook.s.sol/1301/run-latest.json
+

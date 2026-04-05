@@ -30,17 +30,18 @@ contract DeployUnichain is Script {
         ProverTrigger trigger = new ProverTrigger(rscProxy);
         console2.log("ProverTrigger deployed at:", address(trigger));
 
-        // 4. Deploy Hook (Simplified - in prod use a proper miner for the address)
-        // Note: For Unichain, we need a salt that results in an address with the 7th bit set.
-        // For this demo, we'll deploy and log if it doesn't match,
-        // but typically a factory is used.
-        KZGWhitelistHook hook = new KZGWhitelistHook(IPoolManager(poolManager), verifier);
+        // 4. Deploy Hook with mined salt (salt = 3)
+        // This ensures the hook address has BEFORE_SWAP_FLAG set.
+        bytes32 salt = bytes32(uint256(3));
+        KZGWhitelistHook hook = new KZGWhitelistHook{salt: salt}(IPoolManager(poolManager), verifier);
         console2.log("KZGWhitelistHook deployed at:", address(hook));
 
         uint160 hookAddress = uint160(address(hook));
         if ((hookAddress & uint160(Hooks.BEFORE_SWAP_FLAG)) == 0) {
-            console2.log("WARNING: Hook address does not have BEFORE_SWAP_FLAG!");
-            console2.log("You must use a CREATE2 factory to mine a valid address.");
+            console2.log("WARNING: Hook address still does not have BEFORE_SWAP_FLAG!");
+            console2.log("Mining might have changed if manager or verifier changed.");
+        } else {
+            console2.log("SUCCESS: Hook address has BEFORE_SWAP_FLAG.");
         }
 
         vm.stopBroadcast();

@@ -1,0 +1,22 @@
+No files changed, compilation skipped
+Script ran successfully.
+
+== Logs ==
+  Using PoolManager: 0x9e512795Be621572Ef073bc4d395554F71334D8a
+  Using Hook: 0xb9877b41424B21126134e0f0C66E43Cfa24d0080
+  Token0: 0xad7E896E228824e1aC2C7B5DDaB5CF7e4b9bE765
+  Token1: 0x62e5409C0ab3cD44a1d90632880ce4212DC81235
+  Pool initialized!
+
+## Setting up 1 EVM.
+Error: Failed with `EvmError: CreateCollision`:
+
+Error: Failed with `EvmError: CreateCollision`:
+
+  [0] → new <unknown>@0x80e199Ed4D92D72972a2210bf187125245Bc6Cb8
+    └─ ← [CreateCollision]
+
+  [0] → new <unknown>@0x19C0De7B32FE633516013234a2810C720BB45454
+    └─ ← [CreateCollision]
+
+Error: Simulated execution failed.

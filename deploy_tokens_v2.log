@@ -1,0 +1,32 @@
+Compiling 2 files with Solc 0.8.26
+Solc 0.8.26 finished in 1.55s
+Compiler run successful!
+Script ran successfully.
+
+== Logs ==
+  Token0 deployed at: 0xcd96C9122C82905C2EB956e79703E12cCf409194
+  Token1 deployed at: 0xBA567f3150aBde130b0De648ca076eC19796994C
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 1301
+
+Estimated gas price: 0.001000001 gwei
+
+Estimated total gas used for script: 1963674
+
+Estimated amount required: 0.000001963675963674 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+Transactions saved to: /Users/inhousecodes/Documents/Arc-Hooks/Arc-Hook/broadcast/DeployTokens.s.sol/1301/run-latest.json
+
+Sensitive values saved to: /Users/inhousecodes/Documents/Arc-Hooks/Arc-Hook/cache/DeployTokens.s.sol/1301/run-latest.json
+

@@ -1,0 +1,8 @@
+Compiling 1 files with Solc 0.8.26
+Solc 0.8.26 finished in 492.68ms
+Error: Compiler run failed:
+Error (6160): Wrong argument count for function call: 0 arguments given but expected 1.
+  --> script/DeployPoolManager.s.sol:13:31:
+   |
+13 |         PoolManager manager = new PoolManager();
+   |                               ^^^^^^^^^^^^^^^^^

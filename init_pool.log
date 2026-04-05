@@ -1,0 +1,36 @@
+Compiling 5 files with Solc 0.8.26
+Solc 0.8.26 finished in 1.35s
+Compiler run successful!
+Traces:
+  [1230784] → new InitializePool@0x9f7cF1d1F558E57ef88a59ac3D47214eF25B6A06
+    └─ ← [Return] 6037 bytes of code
+
+  [1234436] InitializePool::run()
+    ├─ [0] VM::envUint("UNICHAIN_PRIVATE_KEY") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("POOL_MANAGER") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::envAddress("HOOK_ADDRESS") [staticcall]
+    │   └─ ← [Return] <env var value>
+    ├─ [0] VM::startBroadcast(<pk>)
+    │   └─ ← [Return]
+    ├─ [578610] → new MockToken@0x9e512795Be621572Ef073bc4d395554F71334D8a
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x052faB7c34011dA32d117d8354bdEC6b0Ca28d6e, value: 1000000000000000000000000 [1e24])
+    │   └─ ← [Return] 2431 bytes of code
+    ├─ [578610] → new MockToken@0x18013DcD97514Ae81c590623310b7666A10CcAaf
+    │   ├─ emit Transfer(from: 0x0000000000000000000000000000000000000000, to: 0x052faB7c34011dA32d117d8354bdEC6b0Ca28d6e, value: 1000000000000000000000000 [1e24])
+    │   └─ ← [Return] 2431 bytes of code
+    ├─ [0] console::log("Token0:", MockToken: [0x9e512795Be621572Ef073bc4d395554F71334D8a]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] console::log("Token1:", MockToken: [0x18013DcD97514Ae81c590623310b7666A10CcAaf]) [staticcall]
+    │   └─ ← [Stop]
+    ├─ [0] ::initialize(PoolKey({ currency0: 0x18013DcD97514Ae81c590623310b7666A10CcAaf, currency1: 0x9e512795Be621572Ef073bc4d395554F71334D8a, fee: 3000, tickSpacing: 60, hooks: 0x6dDa674d0E08A65698a5a38a73c0118156fB7D88 }), 79228162514264337593543950336 [7.922e28])
+    │   └─ ← [Stop]
+    └─ ← [Revert] call to non-contract address 0x1F98400000000000000000000000000000000004
+
+
+
+== Logs ==
+  Token0: 0x9e512795Be621572Ef073bc4d395554F71334D8a
+  Token1: 0x18013DcD97514Ae81c590623310b7666A10CcAaf
+Error: script failed: call to non-contract address 0x1F98400000000000000000000000000000000004

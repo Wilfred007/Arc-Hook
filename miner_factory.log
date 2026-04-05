@@ -1,0 +1,15 @@
+Compiling 1 files with Solc 0.8.26
+Solc 0.8.26 finished in 1.30s
+Compiler run successful with warnings:
+Warning (2018): Function state mutability can be restricted to view
+  --> script/HookMiner.s.sol:11:5:
+   |
+11 |     function run() external {
+   |     ^ (Relevant source part starts here and spans across multiple lines).
+
+Script ran successfully.
+
+== Logs ==
+  Mining salt for BEFORE_SWAP_FLAG (1 << 7) via Factory...
+  Found salt: 0
+  Hook Address: 0xCB9D8FF984057c7Cb2e84432D22488Ffc41F47DD
