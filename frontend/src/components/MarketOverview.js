@@ -1,9 +1,11 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { TrendingUp, Activity, BarChart3, Layers } from 'lucide-react'
 
 export default function MarketOverview() {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
   const pools = [
     { id: 1, name: 'ETH / USDC', volume: '$124.5M', tvl: '$1.2B', change: '+2.4%' },
     { id: 2, name: 'WBTC / ETH', volume: '$89.2M', tvl: '$840M', change: '-0.8%' },
@@ -47,11 +49,14 @@ export default function MarketOverview() {
                   <span>Pool Depth</span>
                   <span>Util.</span>
                 </div>
-                {[1,2,3,4].map(i => (
-                  <div key={i} className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                    <div className={`h-full bg-blue-500/50 rounded-full`} style={{ width: `${Math.random() * 60 + 20}%` }} />
-                  </div>
-                ))}
+                 {[1,2,3,4].map(i => (
+                   <div key={i} className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                     <div 
+                       className="h-full bg-blue-500/50 rounded-full" 
+                       style={{ width: mounted ? `${Math.random() * 60 + 20}%` : '0%' }} 
+                     />
+                   </div>
+                 ))}
              </div>
              <div className="pt-4 flex items-center gap-4">
                 <div className="flex items-center gap-1 text-[10px] text-slate-400">

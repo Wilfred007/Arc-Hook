@@ -1,4 +1,4 @@
-# 🔐 UniswapV4 KZG Privacy Whitelist
+# 🔐 Arc-Hook: Institutional Privacy on Uniswap v4
 
 > **Private, compliance-ready whitelisting for Uniswap v4 pools using multilinear KZG commitments and the Reactive Network.**
 
@@ -116,7 +116,7 @@ Admin calls WhitelistRegistry.addAddress(alice)      ← Origin chain (Unichain)
 
 SWAP FLOW (user)
 ──────────────────────────────────────────────────────────────────────────────
-Alice's frontend calls GET /proof/0xAliceAddress  ← Prover REST API
+Alice's frontend calls GET /proof/0xAliceAddress  ← Prover REST API (127.0.0.1:8081)
            │
            └─ returns ABI-encoded hookData (proof)
                       │
@@ -759,6 +759,16 @@ cp .env.deployment.example .env
 | `ORIGIN_CHAIN_ID`          | Chain ID of origin (Unichain Sepolia)                | `1301`                         |
 | `DEST_CHAIN_ID`            | Chain ID of destination                              | `1301`                         |
 
+### Verified Deployment Addresses (Unichain Sepolia)
+
+| Contract | Address |
+| --- | --- |
+| **WhitelistRegistry** | `0xc02e8dd5D600c23de405b4a674deCa8f25c85A18` |
+| **WhitelistVerifier** | `0x5c071003f97b5C39d412C6f119D3cB136e85e0FC` |
+| **ProverTrigger** | `0xed0034D15354F8593fa70099ff9aB01C2617178a` |
+| **KZGWhitelistHook** | `0xb9877b41424B21126134e0f0C66E43Cfa24d0080` |
+| **SwapRouter** | `0x56E8e0cb29A2396b82b99bBc812dd270AB6054aB` |
+
 ### Prover Service Variables
 
 | Variable             | Required | Description                                                           |
@@ -1087,10 +1097,18 @@ The prover attempted to submit a nonce ≤ the last accepted nonce. This can hap
 
 ### `NotWhitelisted` error on swap
 
-- Verify the address is added to `WhitelistRegistry` on-chain.
+- Verify the address is added to `WhitelistRegistry` on-chain using `cast call`.
 - Wait for the prover to poll (up to 7 seconds) and update the commitment.
-- Fetch a fresh proof from the prover API: `GET /proof/:address`.
+- Fetch a fresh proof from the prover API: `GET 127.0.0.1:8081/proof/:address`.
 - Ensure the `hookData` is passed correctly in the swap transaction.
+
+### `net::ERR_CONNECTION_REFUSED` in Frontend
+
+If the frontend cannot connect to the prover API, ensure you are using `127.0.0.1:8081` instead of `localhost:8081` in your `PrivateSwap.js` or `.env.local` to avoid IPv6/IPv4 resolution conflicts.
+
+### `Address is invalid` Error in Frontend
+
+Ensure all contract addresses in your `.env.local` are checksummed or lowercased. Mixed-case addresses that do not match the EIP-55 checksum will be rejected by `viem/wagmi`.
 
 ### Proof API returns 404 but address is in registry
 

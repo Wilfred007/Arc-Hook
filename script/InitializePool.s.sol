@@ -19,8 +19,8 @@ contract InitializePool is Script {
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("UNICHAIN_PRIVATE_KEY");
-        address poolManager = 0x9e512795Be621572Ef073bc4d395554F71334D8a;
-        address hook = 0xb9877b41424B21126134e0f0C66E43Cfa24d0080;
+        address poolManager = vm.envAddress("POOL_MANAGER");
+        address hook = vm.envAddress("HOOK_ADDRESS");
 
         console2.log("Using PoolManager:", poolManager);
         console2.log("Using Hook:", hook);
@@ -28,8 +28,8 @@ contract InitializePool is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // 1. Use Existing Tokens
-        address token0Addr = 0xcd96C9122C82905C2EB956e79703E12cCf409194;
-        address token1Addr = 0xBA567f3150aBde130b0De648ca076eC19796994C;
+        address token0Addr = vm.envAddress("TOKEN0");
+        address token1Addr = vm.envAddress("TOKEN1");
         
         console2.log("Token0:", token0Addr);
         console2.log("Token1:", token1Addr);

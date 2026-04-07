@@ -21,14 +21,29 @@ export default function PrivateSwap() {
   // Avoid hydration mismatch
   useEffect(() => setMounted(true), [])
 
+  // Check if current user is whitelisted before fetching proof
+  const { data: isWhitelisted } = useReadContract({
+    address: ADDRESSES.Registry,
+    abi: ABIS.Registry,
+    functionName: 'isWhitelisted',
+    args: [address],
+    chainId: NETWORKS.UnichainSepolia,
+    query: {
+      enabled: !!address,
+    }
+  })
+
   // Fetch KZG proof from local prover API
   useEffect(() => {
-    if (!address || !isConnected) return
+    if (!address || !isConnected || !isWhitelisted) {
+      setProofData(null)
+      return
+    }
 
     const fetchProof = async () => {
       setIsProofLoading(true)
       try {
-        const response = await fetch(`http://localhost:8082/proof/${address}`)
+        const response = await fetch(`http://127.0.0.1:8081/proof/${address}`)
         if (response.ok) {
           const data = await response.json()
           setProofData(data.hook_data)
@@ -36,7 +51,7 @@ export default function PrivateSwap() {
           setProofData(null)
         }
       } catch (err) {
-        console.error("Prover API unreachable", err)
+        // Silently fail if not found to avoid console noise for non-whitelisted users
         setProofData(null)
       } finally {
         setIsProofLoading(false)
@@ -46,7 +61,7 @@ export default function PrivateSwap() {
     fetchProof()
     const interval = setInterval(fetchProof, 15000) // Poll every 15s
     return () => clearInterval(interval)
-  }, [address, isConnected])
+  }, [address, isConnected, isWhitelisted])
 
   // Read commitment from Verifier
   const { data: commitment, isLoading: isCommitmentLoading } = useReadContract({
@@ -60,14 +75,23 @@ export default function PrivateSwap() {
   const [verifyStatus, setVerifyStatus] = useState('idle') // idle, verifying, success, error
 
   // Write contract for Swap
-  const { writeContract: writeSwap, data: swapHash, isPending: isSwapPending } = useWriteContract()
+  const { writeContract: writeSwap, data: swapHash, isPending: isSwapPending, error: swapError } = useWriteContract()
   const { isLoading: isSwapWaiting, isSuccess: isSwapSuccess } = useWaitForTransactionReceipt({ 
     hash: swapHash,
     chainId: NETWORKS.UnichainSepolia 
   })
 
   // Write contract for Approval
-  const { writeContract: writeApprove, data: approveHash, isPending: isApprovePending } = useWriteContract()
+  const { writeContract: writeApprove, isPending: isApprovePending } = useWriteContract()
+
+  // Log write error if any
+  useEffect(() => {
+    if (swapError) {
+      console.error("Swap Transaction Error Detail:", swapError)
+      alert(`Swap Error: ${swapError.shortMessage || swapError.message}`)
+      setVerifyStatus('error')
+    }
+  }, [swapError])
 
   const handleSwap = async () => {
     if (!proofData) {
@@ -80,10 +104,10 @@ export default function PrivateSwap() {
       const currency0 = ADDRESSES.Token0 < ADDRESSES.Token1 ? ADDRESSES.Token0 : ADDRESSES.Token1
       const currency1 = ADDRESSES.Token0 < ADDRESSES.Token1 ? ADDRESSES.Token1 : ADDRESSES.Token0
 
-      // 1. Approve if needed (simplified: just call approve)
-      // In a real app, check allowance first
+      if (!ADDRESSES.Router || !ADDRESSES.Hook || !currency0 || !currency1) {
+        throw new Error("Missing required contract addresses in environment variables.")
+      }
       
-      // 2. Perform Swap
       writeSwap({
         address: ADDRESSES.Router,
         abi: ABIS.Router,
@@ -97,21 +121,22 @@ export default function PrivateSwap() {
             hooks: ADDRESSES.Hook
           },
           {
-            zeroForOne: true, // Assuming trading Red for Blue
-            amountSpecified: BigInt(-1 * 10**15), // 0.001 units
-            sqrtPriceLimitX96: BigInt("4295128740") // min sqrt price
+            zeroForOne: true, 
+            amountSpecified: BigInt(-1 * 10**15),
+            sqrtPriceLimitX96: BigInt("4295128740")
           },
           {
             takeClaims: false,
             settleUsingBurn: false
           },
-          proofData // THE KZG PROOF
+          proofData
         ],
         chainId: NETWORKS.UnichainSepolia,
       })
 
     } catch (err) {
-      console.error("Swap initiation error", err)
+      console.error("Critical Swap Initiation Error:", err)
+      alert(`Critical Error during swap initiation: ${err.message}`)
       setVerifyStatus('error')
     }
   }
