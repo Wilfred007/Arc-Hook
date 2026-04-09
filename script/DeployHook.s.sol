@@ -3,39 +3,31 @@ pragma solidity ^0.8.26;
 
 import {Script, console2} from "forge-std/Script.sol";
 import {KZGWhitelistHook} from "../src/KZGWhitelistHook.sol";
+import {WhitelistVerifier} from "../src/WhitelistVerifier.sol";
 import {IPoolManager} from "@uniswap/v4-core/src/interfaces/IPoolManager.sol";
-import {IWhitelistVerifier} from "../src/interfaces/IWhitelistVerifier.sol";
 import {Hooks} from "@uniswap/v4-core/src/libraries/Hooks.sol";
-import {Create2Factory} from "../src/Create2Factory.sol";
 
 contract DeployHook is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("UNICHAIN_PRIVATE_KEY");
-        address poolManager = vm.envAddress("POOL_MANAGER");
-        address verifier = vm.envAddress("VERIFIER_ADDRESS");
-        uint256 saltInt = vm.envUint("HOOK_SALT");
-        
-        bytes memory bytecode = abi.encodePacked(
-            type(KZGWhitelistHook).creationCode,
-            abi.encode(poolManager, verifier)
-        );
-        console2.log("Bytecode Hash:", vm.toString(keccak256(bytecode)));
-
-        address factory = 0xDca631229e1955668f05BB8d1c4eEd9acB4D8668;
-        bytes32 salt = bytes32(saltInt);
+        address poolManager = 0x9e512795Be621572Ef073bc4d395554F71334D8a;
+        // Use the most recent Verifier with the fixed bit-order
+        address verifier    = 0xaC456b9444251607B9d1a2E356b737f67B8D6840;
 
         vm.startBroadcast(deployerPrivateKey);
 
-        // Deploy via Factory
-        address hookAddr = Create2Factory(factory).deploy(bytecode, salt);
-        KZGWhitelistHook hook = KZGWhitelistHook(hookAddr);
+        bytes32 salt = bytes32(uint256(3554)); // mined for BEFORE_SWAP_FLAG
+        KZGWhitelistHook hook = new KZGWhitelistHook{salt: salt}(
+            IPoolManager(poolManager),
+            WhitelistVerifier(verifier)
+        );
         console2.log("KZGWhitelistHook deployed at:", address(hook));
 
-        uint160 hookAddress = uint160(address(hook));
-        if ((hookAddress & uint160(Hooks.BEFORE_SWAP_FLAG)) == 0) {
-            console2.log("ERROR: Hook address does not have BEFORE_SWAP_FLAG!");
+        uint160 hookAddr = uint160(address(hook));
+        if ((hookAddr & uint160(Hooks.BEFORE_SWAP_FLAG)) != 0) {
+            console2.log("SUCCESS: BEFORE_SWAP_FLAG is set.");
         } else {
-            console2.log("SUCCESS: Hook address has BEFORE_SWAP_FLAG.");
+            console2.log("ERROR: BEFORE_SWAP_FLAG NOT set. Wrong salt?");
         }
 
         vm.stopBroadcast();

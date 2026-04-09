@@ -181,7 +181,9 @@ contract WhitelistVerifier is Ownable, IWhitelistVerifier {
     function _verifyEvalPoint(address addr, uint256[20] memory evalPoint) internal pure returns (bool) {
         bytes32 hash = keccak256(abi.encodePacked(addr));
         for (uint256 i = 0; i < 20; i++) {
-            uint256 bit = (uint256(hash) >> i) & 1;
+            uint256 byteIdx = 31 - (i / 8);
+            uint256 bitIdx = i % 8;
+            uint256 bit = (uint256(uint8(hash[byteIdx])) >> bitIdx) & 1;
             if (evalPoint[i] != bit) return false;
         }
         return true;

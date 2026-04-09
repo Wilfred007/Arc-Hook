@@ -37,6 +37,9 @@ contract VerifySwap is Script {
         // 2. Approve Swap Router
         MockToken(token0Addr).approve(address(swapRouter), type(uint256).max);
         MockToken(token1Addr).approve(address(swapRouter), type(uint256).max);
+        vm.stopBroadcast();
+
+        vm.startBroadcast(deployerPrivateKey);
 
         PoolKey memory key = PoolKey({
             currency0: Currency.wrap(token0Addr < token1Addr ? token0Addr : token1Addr),

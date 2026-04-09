@@ -30,9 +30,9 @@ contract DeployUnichain is Script {
         ProverTrigger trigger = new ProverTrigger(rscProxy);
         console2.log("ProverTrigger deployed at:", address(trigger));
 
-        // 4. Deploy Hook with mined salt (salt = 3)
-        // This ensures the hook address has BEFORE_SWAP_FLAG set.
-        bytes32 salt = bytes32(uint256(3));
+        // 4. Deploy Hook with mined salt (salt = 14596)
+        // This ensures the hook address has BEFORE_SWAP_FLAG set. (predicted: 0xf32D9a866717c6311F3c7a159373589e96e58080)
+        bytes32 salt = bytes32(uint256(14596));
         KZGWhitelistHook hook = new KZGWhitelistHook{salt: salt}(IPoolManager(poolManager), verifier);
         console2.log("KZGWhitelistHook deployed at:", address(hook));
 

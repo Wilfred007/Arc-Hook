@@ -20,7 +20,7 @@ contract InitializePool is Script {
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("UNICHAIN_PRIVATE_KEY");
         address poolManager = vm.envAddress("POOL_MANAGER");
-        address hook = vm.envAddress("HOOK_ADDRESS");
+        address hook = 0xf32D9a866717c6311F3c7a159373589e96e58080;
 
         console2.log("Using PoolManager:", poolManager);
         console2.log("Using Hook:", hook);

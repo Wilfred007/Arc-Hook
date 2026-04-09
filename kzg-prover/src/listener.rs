@@ -36,7 +36,12 @@ pub async fn start_listener(
     let mut last_processed_block: u64 = db.lock().unwrap()
         .get_sync_state("last_block")?
         .and_then(|s| s.parse().ok())
-        .unwrap_or(0);
+        .unwrap_or_else(|| {
+            env::var("START_BLOCK")
+                .ok()
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(0)
+        });
 
     log::info!("Starting listener from block {}", last_processed_block);
 
