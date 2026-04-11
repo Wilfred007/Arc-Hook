@@ -143,7 +143,7 @@ export default function ProofMonitor() {
          <div className="flex items-center justify-between text-[10px] text-slate-400">
            <span>Global Commitment</span>
            <span className="text-slate-300 font-mono">
-             {ADDRESSES.Verifier.slice(0, 6)}...{ADDRESSES.Verifier.slice(-4)}
+             {ADDRESSES.Verifier?.slice(0, 6)}...{ADDRESSES.Verifier?.slice(-4)}
            </span>
          </div>
          <div className="flex items-center justify-between text-[10px] text-slate-400">

@@ -101,12 +101,12 @@ export default function PrivateSwap() {
 
     setVerifyStatus('verifying')
     try {
+      if (!ADDRESSES.Token0 || !ADDRESSES.Token1 || !ADDRESSES.Router || !ADDRESSES.Hook) {
+        throw new Error("Missing required contract addresses in environment variables (Vercel Settings).")
+      }
+
       const currency0 = ADDRESSES.Token0 < ADDRESSES.Token1 ? ADDRESSES.Token0 : ADDRESSES.Token1
       const currency1 = ADDRESSES.Token0 < ADDRESSES.Token1 ? ADDRESSES.Token1 : ADDRESSES.Token0
-
-      if (!ADDRESSES.Router || !ADDRESSES.Hook || !currency0 || !currency1) {
-        throw new Error("Missing required contract addresses in environment variables.")
-      }
       
       writeSwap({
         address: ADDRESSES.Router,
