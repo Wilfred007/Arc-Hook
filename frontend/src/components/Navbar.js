@@ -20,12 +20,10 @@ export default function Navbar() {
   return (
     <nav className="border-b border-white/10 bg-[#020617]/80 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-            <Shield className="text-white w-5 h-5" />
-          </div>
+        <div className="flex items-center gap-3">
+          <img src="/logo.png" className="w-8 h-8 rounded" alt="Arc Hook Logo" />
           <span className="font-bold text-xl tracking-tight hidden sm:block">
-            Arc-Hook <span className="text-blue-500 font-medium text-sm ml-1 select-none">Institutional</span>
+            ARC HOOK
           </span>
         </div>
 
