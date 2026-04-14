@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { UserPlus, UserMinus, ShieldAlert, Loader2, CheckCircle } from 'lucide-react'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { ADDRESSES, ABIS, NETWORKS } from '@/lib/constants'
+import { ADDRESSES, ABIS, NETWORKS, APP_CONFIG } from '@/lib/constants'
 import { Toast, TOAST_TYPES } from './Toast'
 
 export default function AdminPanel() {
@@ -36,7 +36,7 @@ export default function AdminPanel() {
     address: ADDRESSES.Registry,
     abi: ABIS.Registry,
     functionName: 'nonce',
-    chainId: NETWORKS.UnichainSepolia,
+    chainId: NETWORKS.Demo,
     query: {
       refetchInterval: isSyncing ? 3000 : 30000,
     }
@@ -47,7 +47,7 @@ export default function AdminPanel() {
     address: ADDRESSES.Verifier,
     abi: ABIS.Verifier,
     functionName: 'lastNonce',
-    chainId: NETWORKS.UnichainSepolia,
+    chainId: NETWORKS.Demo,
     query: {
       refetchInterval: isSyncing ? 3000 : 30000,
     }
@@ -58,7 +58,7 @@ export default function AdminPanel() {
     address: ADDRESSES.Registry,
     abi: ABIS.Registry,
     functionName: 'owner',
-    chainId: NETWORKS.UnichainSepolia,
+    chainId: NETWORKS.Demo,
   })
 
   const { writeContract, data: hash, isPending, error: writeError } = useWriteContract()
@@ -110,9 +110,9 @@ export default function AdminPanel() {
       abi: ABIS.Registry,
       functionName: 'addAddress',
       args: [targetAddress],
-      chainId: NETWORKS.UnichainSepolia,
+      chainId: NETWORKS.Demo,
     })
-    addToast("Sending transaction to Unichain Sepolia...", TOAST_TYPES.INFO, 3000)
+    addToast(`Sending transaction to ${APP_CONFIG.chainName}...`, TOAST_TYPES.INFO, 3000)
   }
 
   const handleRemove = () => {
@@ -121,9 +121,9 @@ export default function AdminPanel() {
       abi: ABIS.Registry,
       functionName: 'removeAddress',
       args: [targetAddress],
-      chainId: NETWORKS.UnichainSepolia,
+      chainId: NETWORKS.Demo,
     })
-    addToast("Sending transaction to Unichain Sepolia...", TOAST_TYPES.INFO, 3000)
+    addToast(`Sending transaction to ${APP_CONFIG.chainName}...`, TOAST_TYPES.INFO, 3000)
   }
 
   if (!mounted || !isConnected) return null

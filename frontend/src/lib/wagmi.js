@@ -2,15 +2,20 @@ import { http, createConfig } from 'wagmi'
 import { mainnet, sepolia } from 'wagmi/chains'
 import { injected } from 'wagmi/connectors'
 
-export const unichainSepolia = {
-  id: 1301,
-  name: 'Unichain Sepolia',
+const demoChainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? 133)
+const demoChainName = process.env.NEXT_PUBLIC_CHAIN_NAME ?? 'HashKey Testnet'
+const demoRpcUrl = process.env.NEXT_PUBLIC_CHAIN_RPC_URL ?? 'https://testnet.hsk.xyz'
+const demoExplorerUrl = process.env.NEXT_PUBLIC_EXPLORER_BASE_URL ?? 'https://hashkey.blockscout.com'
+
+export const demoChain = {
+  id: demoChainId,
+  name: demoChainName,
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
-    default: { http: ['https://sepolia.unichain.org'] },
+    default: { http: [demoRpcUrl] },
   },
   blockExplorers: {
-    default: { name: 'Explorer', url: 'https://sepolia.unichain.org' },
+    default: { name: 'Explorer', url: demoExplorerUrl },
   },
   testnet: true,
 }
@@ -29,10 +34,10 @@ export const reactiveLasna = {
 }
 
 export const config = createConfig({
-  chains: [unichainSepolia, reactiveLasna, mainnet, sepolia],
+  chains: [demoChain, reactiveLasna, mainnet, sepolia],
   connectors: [injected()],
   transports: {
-    [unichainSepolia.id]: http(),
+    [demoChain.id]: http(),
     [reactiveLasna.id]: http(),
     [mainnet.id]: http(),
     [sepolia.id]: http(),

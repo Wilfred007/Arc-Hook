@@ -4,13 +4,13 @@ import React, { useState, useEffect } from 'react'
 import { ArrowDownUp, ShieldCheck, Lock, Loader2, AlertCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAccount, useBalance, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
-import { ADDRESSES, ABIS, NETWORKS } from '@/lib/constants'
+import { ADDRESSES, ABIS, NETWORKS, APP_CONFIG } from '@/lib/constants'
 
 export default function PrivateSwap() {
   const { address, isConnected, chainId } = useAccount()
   const { data: ethBalance } = useBalance({ 
     address, 
-    chainId: NETWORKS.UnichainSepolia 
+    chainId: NETWORKS.Demo 
   })
   
   const [fromAmount, setFromAmount] = useState('0.1')
@@ -27,7 +27,7 @@ export default function PrivateSwap() {
     abi: ABIS.Registry,
     functionName: 'isWhitelisted',
     args: [address],
-    chainId: NETWORKS.UnichainSepolia,
+    chainId: NETWORKS.Demo,
     query: {
       enabled: !!address,
     }
@@ -43,7 +43,7 @@ export default function PrivateSwap() {
     const fetchProof = async () => {
       setIsProofLoading(true)
       try {
-        const response = await fetch(`http://127.0.0.1:8081/proof/${address}`)
+        const response = await fetch(`${APP_CONFIG.proverApiBase}/proof/${address}`)
         if (response.ok) {
           const data = await response.json()
           setProofData(data.hook_data)
@@ -68,7 +68,7 @@ export default function PrivateSwap() {
     address: ADDRESSES.Verifier,
     abi: ABIS.Verifier,
     functionName: 'commitment',
-    chainId: NETWORKS.UnichainSepolia,
+    chainId: NETWORKS.Demo,
   })
 
   // State for UI feedback
@@ -78,7 +78,7 @@ export default function PrivateSwap() {
   const { writeContract: writeSwap, data: swapHash, isPending: isSwapPending, error: swapError } = useWriteContract()
   const { isLoading: isSwapWaiting, isSuccess: isSwapSuccess } = useWaitForTransactionReceipt({ 
     hash: swapHash,
-    chainId: NETWORKS.UnichainSepolia 
+    chainId: NETWORKS.Demo 
   })
 
   // Write contract for Approval
@@ -131,7 +131,7 @@ export default function PrivateSwap() {
           },
           proofData
         ],
-        chainId: NETWORKS.UnichainSepolia,
+        chainId: NETWORKS.Demo,
       })
 
     } catch (err) {
@@ -166,13 +166,13 @@ export default function PrivateSwap() {
       ],
       functionName: 'approve',
       args: [ADDRESSES.Router, BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")],
-      chainId: NETWORKS.UnichainSepolia,
+      chainId: NETWORKS.Demo,
     })
   }
 
   if (!mounted) return <div className="glass rounded-2xl p-6 w-full max-w-md h-[500px] animate-pulse" />
 
-  const isWrongNetwork = isConnected && chainId !== NETWORKS.UnichainSepolia
+  const isWrongNetwork = isConnected && chainId !== NETWORKS.Demo
 
   return (
     <div className="glass rounded-2xl p-6 w-full max-w-md relative overflow-hidden">
@@ -180,7 +180,7 @@ export default function PrivateSwap() {
       
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-bold flex items-center gap-2">
-          Private Swap <span className="text-[10px] text-slate-500 font-normal py-0.5 px-1.5 border border-slate-700 rounded uppercase tracking-wider">Unichain Sepolia</span>
+          Private Swap <span className="text-[10px] text-slate-500 font-normal py-0.5 px-1.5 border border-slate-700 rounded uppercase tracking-wider">{APP_CONFIG.chainName}</span>
         </h2>
         <SettingsIcon className="w-5 h-5 text-slate-400 cursor-pointer hover:text-white" />
       </div>
@@ -188,7 +188,7 @@ export default function PrivateSwap() {
       {isWrongNetwork && (
         <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 text-red-400 text-xs text-center justify-center">
           <AlertCircle className="w-4 h-4" />
-          Please switch to Unichain Sepolia
+          Please switch to {APP_CONFIG.chainName}
         </div>
       )}
 
@@ -291,7 +291,7 @@ export default function PrivateSwap() {
             <ShieldCheck className="w-5 h-5" /> Swap Executed Privately
           </div>
           <a 
-            href={`https://sepolia.unichain.org/tx/${swapHash}`} 
+            href={`${APP_CONFIG.explorerBaseUrl}/tx/${swapHash}`} 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-[10px] text-blue-400 hover:underline"

@@ -21,7 +21,7 @@ export default function ProofMonitor() {
     abi: ABIS.Registry,
     functionName: 'isWhitelisted',
     args: [address],
-    chainId: NETWORKS.UnichainSepolia,
+    chainId: NETWORKS.Demo,
     enabled: !!address,
   })
 
@@ -30,7 +30,7 @@ export default function ProofMonitor() {
     address: ADDRESSES.Registry,
     abi: ABIS.Registry,
     eventName: 'WhitelistUpdated',
-    chainId: NETWORKS.UnichainSepolia,
+    chainId: NETWORKS.Demo,
     onLogs() {
       refetch()
     },

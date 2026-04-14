@@ -67,42 +67,31 @@ impl ChainClient {
             .parse()
             .context("invalid registry address")?;
 
-        let current_block = provider.get_block_number().await.context("failed to get current block")?;
-        
-        let mut result = Vec::new();
-        let mut start = from_block;
-        let window_size = 10_000;
+        // Some chains / RPC providers fail eth_blockNumber via this provider stack.
+        // For compatibility, query logs from from_block -> latest directly.
+        let filter = Filter::new()
+            .address(addr)
+            .from_block(from_block)
+            .event_signature(WhitelistUpdated::SIGNATURE_HASH);
 
-        while start <= current_block {
-            let end = u64::min(start + window_size - 1, current_block);
-            log::debug!("Fetching logs from block {} to {}", start, end);
+        let raw_logs: Vec<Log> = provider
+            .get_logs(&filter)
+            .await
+            .context(format!("eth_getLogs failed from block {} to latest", from_block))?;
 
-            let filter = Filter::new()
-                .address(addr)
-                .from_block(start)
-                .to_block(end)
-                .event_signature(WhitelistUpdated::SIGNATURE_HASH);
+        let mut result = Vec::with_capacity(raw_logs.len());
+        for log in raw_logs {
+            let block_number = log.block_number.unwrap_or(from_block);
+            let decoded = WhitelistUpdated::decode_log(&log.inner, true)
+                .context("failed to decode WhitelistUpdated log")?;
+            let address_str = format!("{:#x}", decoded.addr);
 
-            let raw_logs: Vec<Log> = provider
-                .get_logs(&filter)
-                .await
-                .context(format!("eth_getLogs failed for range {}-{}", start, end))?;
-
-            for log in raw_logs {
-                let block_number = log.block_number.unwrap_or(start);
-                let decoded = WhitelistUpdated::decode_log(&log.inner, true)
-                    .context("failed to decode WhitelistUpdated log")?;
-                let address_str = format!("{:#x}", decoded.addr);
-
-                result.push(WhitelistLog {
-                    address: address_str,
-                    added: decoded.added,
-                    nonce: decoded.nonce.to::<u64>(),
-                    block_number,
-                });
-            }
-
-            start = end + 1;
+            result.push(WhitelistLog {
+                address: address_str,
+                added: decoded.added,
+                nonce: decoded.nonce.to::<u64>(),
+                block_number,
+            });
         }
 
         Ok(result)
